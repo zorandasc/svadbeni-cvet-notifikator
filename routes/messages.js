@@ -5,6 +5,7 @@ const { Expo } = require("expo-server-sdk");
 
 const messagesStore = require("../store/messages");
 const tokenStore = require("../store/tokens");
+const validateWith = require("../middleware/validation");
 const sendPushNotification = require("../utilities/pushNotifications");
 
 router.get("/", (req, res) => {
