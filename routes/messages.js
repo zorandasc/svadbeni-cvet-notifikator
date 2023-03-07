@@ -45,6 +45,7 @@ router.post("/", async (req, res) => {
 
 router.delete("/:id", (req, res) => {
   const id = req.params.id;
+ 
   messagesStore.deleteMessage(id);
 
   res.status(201).send();
