@@ -12,15 +12,21 @@ router.get("/", (req, res) => {
   res.send(messages);
 });
 
-router.post("/", async (req, res) => {
-  let messageToAllTokens = [];
-  const { name, email, message, dateTime } = req.body;
+const schema = {
+  name: Joi.string().required(),
+  email: Joi.string().required(),
+  message: Joi.string().required(),
+};
 
+router.post("/", [validateWith(schema)], async (req, res) => {
+  let messageToAllTokens = [];
+  const { name, email, message } = req.body;
+
+  //ADD TO LOCAL STORE
   messagesStore.addMessage({
     name,
     email,
     content: message,
-    dateTime,
   });
 
   for (let pushToken of tokenStore.getTokens()) {
@@ -34,7 +40,7 @@ router.post("/", async (req, res) => {
       sound: "default",
       title: "Nova poruka od Svadbenog Cveta!",
       body: `Ime: ${name}, Email: ${email}`,
-      data: { name, email, message, dateTime },
+      data: { name, email, message },
     });
 
     await sendPushNotification(messageToAllTokens);
@@ -45,7 +51,7 @@ router.post("/", async (req, res) => {
 
 router.delete("/:id", (req, res) => {
   const id = req.params.id;
- 
+
   messagesStore.deleteMessage(id);
 
   res.status(201).send();
