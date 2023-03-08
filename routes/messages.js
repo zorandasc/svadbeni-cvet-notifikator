@@ -8,16 +8,16 @@ const tokenStore = require("../store/tokens");
 const validateWith = require("../middleware/validation");
 const sendPushNotification = require("../utilities/pushNotifications");
 
-router.get("/", (req, res) => {
-  const messages = messagesStore.getMessages();
-  res.send(messages);
-});
-
 const schema = {
   name: Joi.string().required(),
   email: Joi.string().required(),
   message: Joi.string().required(),
 };
+
+router.get("/", (req, res) => {
+  const messages = messagesStore.getMessages();
+  res.send(messages);
+});
 
 router.post("/", [validateWith(schema)], async (req, res) => {
   let messageToAllTokens = [];
@@ -29,6 +29,11 @@ router.post("/", [validateWith(schema)], async (req, res) => {
     email,
     content: message,
   });
+
+  if (!tokenStore.getTokens().length) {
+    console.log("No tokens(users).");
+    return;
+  }
 
   for (let pushToken of tokenStore.getTokens()) {
     pushToken = pushToken.expoToken;
