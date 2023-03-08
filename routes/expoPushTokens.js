@@ -14,10 +14,15 @@ router.post(
   "/",
   [validateWith({ token: Joi.string().required() })],
   (req, res) => {
+    if (tokenStore.findToken(req.body.token)) {
+      console.log("Token already in store.");
+      return res.status(201).send();
+    }
+
     tokenStore.addToken({
       expoToken: req.body.token,
     });
-    console.log("Token added: ");
+    console.log("Token added:", req.body.token);
     res.status(201).send();
   }
 );
