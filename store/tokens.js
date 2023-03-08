@@ -7,7 +7,7 @@
 
 const tokens = [];
 
-getTokens = () => {
+const getTokens = () => {
   return tokens;
 };
 
@@ -16,7 +16,12 @@ const addToken = (token) => {
   tokens.push(token);
 };
 
+const findToken = (expoToken) => {
+  return tokens.find((token) => token.expoToken === expoToken);
+};
+
 module.exports = {
   addToken,
   getTokens,
+  findToken,
 };

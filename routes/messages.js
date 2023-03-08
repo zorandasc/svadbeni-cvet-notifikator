@@ -32,7 +32,7 @@ router.post("/", [validateWith(schema)], async (req, res) => {
 
   if (!tokenStore.getTokens().length) {
     console.log("No tokens(users).");
-    return;
+    return res.status(404).send("No users, another word no tokens");
   }
 
   for (let pushToken of tokenStore.getTokens()) {

@@ -9,6 +9,11 @@ router.post(
   "/",
   [validateWith({ token: Joi.string().required() })],
   (req, res) => {
+    if (tokenStore.findToken(req.body.token)) {
+      console.log("Already in tokens array.");
+      return res.status(201).send();
+    }
+
     tokenStore.addToken({
       expoToken: req.body.token,
     });
