@@ -30,11 +30,13 @@ router.post("/", [validateWith(schema)], async (req, res) => {
     content: message,
   });
 
-  if (!tokenStore.getTokens()) {
+  const tokens = tokenStore.getTokens();
+
+  if (tokens.length == 0) {
     return res.status(201).send("");
   }
 
-  for (let pushToken of tokenStore.getTokens()) {
+  for (let pushToken of tokens) {
     pushToken = pushToken.expoToken;
     if (!Expo.isExpoPushToken(pushToken)) {
       console.error(`Push token ${pushToken} is not a valid Expo push token`);
