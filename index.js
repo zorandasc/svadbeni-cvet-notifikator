@@ -8,7 +8,6 @@ const messages = require("./routes/messages");
 const expoPushTokens = require("./routes/expoPushTokens");
 
 app.use(
-  cors(
     cors({
       origin: [
         "http://localhost:8000",
@@ -16,7 +15,6 @@ app.use(
         "https://deluxe-stroopwafel-bfc24b.netlify.app",
       ],
     })
-  )
 );
 app.use(express.json());
 //app.use(express.urlencoded({ extended: true }));

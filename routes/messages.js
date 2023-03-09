@@ -30,6 +30,10 @@ router.post("/", [validateWith(schema)], async (req, res) => {
     content: message,
   });
 
+  if (!tokenStore.getTokens()) {
+    return res.status(201).send("");
+  }
+
   for (let pushToken of tokenStore.getTokens()) {
     pushToken = pushToken.expoToken;
     if (!Expo.isExpoPushToken(pushToken)) {
