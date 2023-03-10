@@ -7,14 +7,17 @@ var cors = require("cors");
 const messages = require("./routes/messages");
 const expoPushTokens = require("./routes/expoPushTokens");
 
+//startuj bazu
+require("./db")();
+
 app.use(
-    cors({
-      origin: [
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-        "https://deluxe-stroopwafel-bfc24b.netlify.app",
-      ],
-    })
+  cors({
+    origin: [
+      "http://localhost:8000",
+      "http://127.0.0.1:8000",
+      "https://deluxe-stroopwafel-bfc24b.netlify.app",
+    ],
+  })
 );
 app.use(express.json());
 //app.use(express.urlencoded({ extended: true }));

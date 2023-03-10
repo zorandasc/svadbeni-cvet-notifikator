@@ -1,43 +1,37 @@
 const express = require("express");
 const router = express.Router();
-const Joi = require("joi");
 const { Expo } = require("expo-server-sdk");
 
-const messagesStore = require("../store/messages");
-const tokenStore = require("../store/tokens");
-const validateWith = require("../middleware/validation");
 const sendPushNotification = require("../utilities/pushNotifications");
+const { message: MessageDB, validateMessage } = require("../models/message");
+const { expoToken: ExpoTokenDB } = require("../models/expoToken");
+const validateObjectId = require("../middleware/validateObjectId");
+const validation = require("../middleware/validation");
 
-const schema = {
-  name: Joi.string().required(),
-  email: Joi.string().required(),
-  message: Joi.string().required(),
-};
-
-router.get("/", (req, res) => {
-  const messages = messagesStore.getMessages();
-  res.send(messages);
-});
-
-router.post("/", [validateWith(schema)], async (req, res) => {
+//GATSBY FORM REQUEST
+router.post("/", validation(validateMessage), async (req, res) => {
   let messageToAllTokens = [];
-  const { name, email, message } = req.body;
 
-  //ADD TO LOCAL STORE
-  messagesStore.addMessage({
-    name,
-    email,
-    content: message,
+  const { name, email, content } = req.body;
+
+  //ADD TO STORe
+  const newMessage = new MessageDB({
+    name: name,
+    email: email,
+    content: content,
+    dateTime: new Date().toLocaleString(),
   });
 
-  const tokens = tokenStore.getTokens();
+  await newMessage.save();
+
+  const tokens = await ExpoTokenDB.find();
 
   if (tokens.length == 0) {
-    return res.status(201).send("");
+    return res.status(201).send("NO tokens in array");
   }
 
   for (let pushToken of tokens) {
-    pushToken = pushToken.expoToken;
+    pushToken = pushToken.token;
     if (!Expo.isExpoPushToken(pushToken)) {
       console.error(`Push token ${pushToken} is not a valid Expo push token`);
       continue;
@@ -47,7 +41,7 @@ router.post("/", [validateWith(schema)], async (req, res) => {
       sound: "default",
       title: "Nova poruka od Svadbenog Cveta!",
       body: `Ime: ${name}, Email: ${email}`,
-      data: { name, email, message },
+      data: { name, email, content },
     });
 
     await sendPushNotification(messageToAllTokens);
@@ -56,11 +50,15 @@ router.post("/", [validateWith(schema)], async (req, res) => {
   }
 });
 
-router.delete("/:id", (req, res) => {
-  const id = req.params.id;
+//REACT-NATIVE GET ALL MESSAGES
+router.get("/", async (req, res) => {
+  const messages = await MessageDB.find().sort([["dateTime", -1]]);
+  res.send(messages);
+});
 
-  messagesStore.deleteMessage(id);
-
+//REACT-NATIVE DELETE MESSAGE
+router.delete("/:id", validateObjectId, async (req, res) => {
+  await MessageDB.findByIdAndDelete(req.params.id);
   res.status(201).send();
 });
 

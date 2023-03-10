@@ -1,30 +1,39 @@
 const express = require("express");
 const router = express.Router();
-const Joi = require("joi");
+const {
+  expoToken: ExpoTokenDB,
+  validateToken,
+} = require("../models/expoToken");
+const validation = require("../middleware/validation");
+const validateObjectId = require("../middleware/validateObjectId");
 
-const tokenStore = require("../store/tokens");
-const validateWith = require("../middleware/validation");
+router.post("/", validation(validateToken), async (req, res) => {
+  //ako je toekn vec storovan nemoj ga ponovo storovati
+  const tokenInStore = await ExpoTokenDB.findOne({ token: req.body.token });
+  if (tokenInStore) return res.status(201).send("Token already in store.");
 
-router.get("/", (req, res) => {
-  const tokens = tokenStore.getTokens();
+  //kreiraj novi token u bazi
+  const newToken = new ExpoTokenDB({
+    token: req.body.token,
+  });
+
+  await newToken.save();
+
+  res.status(201).send(`Token added: ${newToken.token}`);
+});
+
+router.get("/", async (req, res) => {
+  const tokens = await ExpoTokenDB.find();
   res.send(tokens);
 });
 
-router.post(
-  "/",
-  [validateWith({ token: Joi.string().required() })],
-  (req, res) => {
-    if (tokenStore.findToken(req.body.token)) {
-      console.log("Token already in store.");
-      return res.status(201).send();
-    }
+//REACT-NATIVE DELETE
+router.delete("/:id", validateObjectId, async (req, res) => {
+  const id = req.params.id;
 
-    tokenStore.addToken({
-      expoToken: req.body.token,
-    });
-    console.log("Token added:", req.body.token);
-    res.status(201).send();
-  }
-);
+  await ExpoTokenDB.findByIdAndDelete(id);
+
+  res.status(201).send("token deleted");
+});
 
 module.exports = router;
