@@ -19,7 +19,7 @@ router.post("/", validation(validateMessage), async (req, res) => {
     name: name,
     email: email,
     content: content,
-    dateTime: new Date().toLocaleString(),
+    dateTime: new Date().toLocaleString("sr-Latn-CS"),
   });
 
   await newMessage.save();
