@@ -18,12 +18,16 @@ const messageSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  touched: {
+    type: Boolean,
+    required: true,
+  },
 });
 
 const Message = mongoose.model("Message", messageSchema);
 
 //validacija dolaznog messega
-
+//dateTime,touched se dodaju na serveru
 const validateMessage = Joi.object({
   name: Joi.string().required(),
   email: Joi.string().required(),

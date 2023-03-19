@@ -16,6 +16,7 @@ app.use(
       "http://localhost:8000",
       "http://127.0.0.1:8000",
       "https://deluxe-stroopwafel-bfc24b.netlify.app",
+      "https://svadbeni-cvet.com",
     ],
   })
 );

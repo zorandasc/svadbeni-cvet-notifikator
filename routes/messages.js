@@ -8,7 +8,7 @@ const { expoToken: ExpoTokenDB } = require("../models/expoToken");
 const validateObjectId = require("../middleware/validateObjectId");
 const validation = require("../middleware/validation");
 
-//GATSBY FORM REQUEST
+//FORM REQUEST GATSBY
 router.post("/", validation(validateMessage), async (req, res) => {
   let messageToAllTokens = [];
 
@@ -20,6 +20,7 @@ router.post("/", validation(validateMessage), async (req, res) => {
     email: email,
     content: content,
     dateTime: new Date().toLocaleString("sr-Latn-CS"),
+    touched: false,
   });
 
   await newMessage.save();
@@ -54,6 +55,11 @@ router.post("/", validation(validateMessage), async (req, res) => {
 router.get("/", async (req, res) => {
   const messages = await MessageDB.find().sort([["dateTime", -1]]);
   res.send(messages);
+});
+
+router.patch("/:id", async (req, res) => {
+  await MessageDB.findByIdAndUpdate(req.params.id, { touched: true });
+  res.status(201).send();
 });
 
 //REACT-NATIVE DELETE MESSAGE
