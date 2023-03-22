@@ -19,7 +19,9 @@ router.post("/", validation(validateMessage), async (req, res) => {
     name: name,
     email: email,
     content: content,
-    dateTime: new Date().toLocaleString("sr-Latn-CS"),
+    dateTime: new Date().toLocaleString("sr-Latn-CS", {
+      timeZone: "Europe/Belgrade",
+    }),
     touched: false,
   });
 
